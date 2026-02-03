@@ -1,0 +1,8 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" fill="black"/>
+  <text x="20" y="130" font-family="Courier New, monospace" font-size="120" fill="#00FF41" font-weight="bold">></text>
+  <rect x="100" y="60" width="70" height="80" fill="#00FF41">
+    <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />
+  </rect>
+  <path d="M10 10 L190 10 L190 190 L10 190 Z" fill="none" stroke="#00FF41" stroke-width="2" stroke-dasharray="5,5"/>
+</svg>
