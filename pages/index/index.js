@@ -59,10 +59,17 @@ Page({
       name: 'file',
       formData: { type: type },
       success: (res) => {
-        this.addMessage('system', 'FILE RECEIVED AND PROCESSED.');
+        let msg = 'FILE RECEIVED AND PROCESSED.';
+        try {
+          // wx.uploadFile 返回的是字符串，需要 JSON.parse
+          const data = JSON.parse(res.data);
+          msg = data.reply || data.message || msg;
+        } catch(e) {}
+        
+        this.addMessage('system', msg);
       },
-      fail: () => {
-        this.addMessage('system', 'ERROR: UPLOAD FAILED.');
+      fail: (err) => {
+        this.addMessage('system', `ERROR: UPLOAD FAILED (${err.errMsg})`);
       },
       complete: () => {
         this.setData({ isTyping: false });
@@ -105,36 +112,42 @@ Page({
     });
 
     // 这里是调用 OpenClaw 的逻辑
-    wx.request({
+    const requestTask = wx.request({
       url: app.globalData.apiUrl,
       method: 'POST',
       header: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer YOUR_TOKEN' // 老大，以后要加鉴权的话放这
+        'Content-Type': 'application/json'
       },
       data: {
         message: text
       },
       success: (res) => {
         const sysMsgId = 's' + Date.now();
+        // 增加对不同返回格式的兼容处理
+        let replyText = 'COMMAND EXECUTED.';
+        if (res.data) {
+          replyText = res.data.reply || res.data.message || (typeof res.data === 'string' ? res.data : replyText);
+        }
+        
         this.setData({
           messages: [...this.data.messages, {
             id: sysMsgId,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             type: 'system',
-            text: res.data.reply || 'COMMAND EXECUTED.'
+            text: replyText
           }],
           lastMessageId: sysMsgId
         });
       },
-      fail: () => {
+      fail: (err) => {
+        console.error('Uplink error:', err);
         const errId = 'e' + Date.now();
         this.setData({
           messages: [...this.data.messages, {
             id: errId,
             time: timestamp,
             type: 'system',
-            text: 'ERROR: UPLINK FAILED.'
+            text: `ERROR: UPLINK FAILED (${err.errMsg || 'UNKNOWN_ERROR'})`
           }],
           lastMessageId: errId
         });
