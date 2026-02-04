@@ -3,7 +3,7 @@ App({
     console.log('Terminal initialized...');
   },
   globalData: {
-    apiUrl: 'https://api.peidarenli.com/wechat',
-    uploadUrl: 'https://api.peidarenli.com/wechat'
+    apiUrl: 'https://ding.calctextile.com/api/v1/sessions/main/send',
+    uploadUrl: 'https://ding.calctextile.com/api/v1/files/upload' 
   }
 })
