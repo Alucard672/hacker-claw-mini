@@ -11,12 +11,56 @@ Page({
   },
 
   onLoad() {
+    const phone = wx.getStorageSync('user_phone');
+    if (!phone) {
+      wx.reLaunch({ url: '../login/login' });
+      return;
+    }
+    this.setData({ userPhone: phone });
+
     let sessionKey = wx.getStorageSync('claw_session_key');
     if (!sessionKey) {
-      sessionKey = `wx-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      sessionKey = `user-${phone}`;
       wx.setStorageSync('claw_session_key', sessionKey);
     }
     app.globalData.sessionKey = sessionKey;
+    
+    // 拉取历史记录
+    this.fetchHistory();
+  },
+
+  fetchHistory() {
+    wx.request({
+      url: `${app.globalData.apiUrl.replace('/wechat', '')}/api/v1/sessions/history`,
+      method: 'GET',
+      data: {
+        sessionKey: app.globalData.sessionKey,
+        limit: 20
+      },
+      header: {
+        'Authorization': 'Bearer 888888'
+      },
+      success: (res) => {
+        if (res.data && res.data.data) {
+          // 将 OpenClaw 历史记录转换为小程序格式
+          const history = res.data.data.map(m => ({
+            id: m.id,
+            time: new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            type: m.role === 'user' ? 'user' : 'system',
+            text: m.content
+          })).reverse();
+          
+          if (history.length > 0) {
+            this.setData({ messages: history, lastMessageId: history[history.length-1].id });
+          }
+        }
+      }
+    });
+  },
+
+  logout() {
+    wx.clearStorageSync();
+    wx.reLaunch({ url: '../login/login' });
   },
 
   // 选择并上传图片

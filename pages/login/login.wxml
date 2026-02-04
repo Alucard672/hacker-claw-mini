@@ -1,0 +1,19 @@
+<view class="container">
+  <view class="header">
+    <image class="logo" src="../../images/logo.png" mode="aspectFit"></image>
+    <text class="title">TERMINAL_CLAW</text>
+    <text class="subtitle">System Authentication Required</text>
+  </view>
+
+  <view class="login-box">
+    <view class="info-text">
+      <text>为了同步您的历史记录，系统需要获取您的登录身份。</text>
+    </view>
+    <button class="login-btn" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">
+      微信手机号一键登录
+    </button>
+    <view class="footer-note">
+      <text>SECURE ENCRYPTED UPLINK</text>
+    </view>
+  </view>
+</view>
