@@ -10,6 +10,15 @@ Page({
     isTyping: false
   },
 
+  onLoad() {
+    let sessionKey = wx.getStorageSync('claw_session_key');
+    if (!sessionKey) {
+      sessionKey = `wx-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      wx.setStorageSync('claw_session_key', sessionKey);
+    }
+    app.globalData.sessionKey = sessionKey;
+  },
+
   // 选择并上传图片
   chooseImage() {
     wx.chooseMedia({
@@ -57,7 +66,7 @@ Page({
       url: app.globalData.uploadUrl,
       filePath: path,
       name: 'file',
-      formData: { type: type },
+      formData: { type: type, sessionKey: app.globalData.sessionKey || '' },
       success: (res) => {
         let msg = 'FILE RECEIVED AND PROCESSED.';
         try {
@@ -119,7 +128,8 @@ Page({
         'Content-Type': 'application/json'
       },
       data: {
-        message: text
+        message: text,
+        sessionKey: app.globalData.sessionKey || ''
       },
       success: (res) => {
         const sysMsgId = 's' + Date.now();
@@ -156,5 +166,17 @@ Page({
         this.setData({ isTyping: false });
       }
     });
+  },
+
+  previewImage(e) {
+    const src = e.currentTarget.dataset.src;
+    if (!src) return;
+    wx.previewImage({ urls: [src] });
+  },
+
+  openFile(e) {
+    const url = e.currentTarget.dataset.url;
+    if (!url) return;
+    wx.openDocument({ filePath: url, showMenu: true });
   }
 })
