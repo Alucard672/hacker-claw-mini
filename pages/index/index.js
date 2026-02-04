@@ -3,7 +3,7 @@ const app = getApp();
 Page({
   data: {
     messages: [
-      { id: 'm0', time: '01:22', type: 'system', text: '连接已建立，系统在线。' }
+      { id: 'm0', time: '01:22', type: 'system', text: 'CONNECTION ESTABLISHED. SYSTEM ONLINE.' }
     ],
     inputValue: '',
     lastMessageId: 'm0',
@@ -13,19 +13,10 @@ Page({
   onLoad() {
     let sessionKey = wx.getStorageSync('claw_session_key');
     if (!sessionKey) {
-      wx.login({
-        success: (res) => {
-          if (res.code) {
-            // 这里先临时用 code 生成一个 sessionKey，如果是老大的后端，可以直接换 openid
-            sessionKey = `wx-${res.code}`;
-            wx.setStorageSync('claw_session_key', sessionKey);
-            app.globalData.sessionKey = sessionKey;
-          }
-        }
-      });
-    } else {
-      app.globalData.sessionKey = sessionKey;
+      sessionKey = `wx-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      wx.setStorageSync('claw_session_key', sessionKey);
     }
+    app.globalData.sessionKey = sessionKey;
   },
 
   // 选择并上传图片
@@ -48,7 +39,7 @@ Page({
       type: 'file',
       success: (res) => {
         const file = res.tempFiles[0];
-        this.addMessage('user', `正在发送文件：${file.name}`, { file: file.path, fileName: file.name });
+        this.addMessage('user', `Sending file: ${file.name}`, { file: file.path, fileName: file.name });
         this.uploadFile(file.path, 'file');
       }
     });
@@ -58,13 +49,13 @@ Page({
   startVoice() {
     this.recorder = wx.getRecorderManager();
     this.recorder.start({ format: 'mp3' });
-    wx.showToast({ title: '正在录音...', icon: 'none' });
+    wx.showToast({ title: 'RECORDING...', icon: 'none' });
   },
 
   stopVoice() {
     this.recorder.stop();
     this.recorder.onStop((res) => {
-      this.addMessage('user', '发送了一条语音消息。');
+      this.addMessage('user', 'Sent a voice message.');
       this.uploadFile(res.tempFilePath, 'audio');
     });
   },
@@ -75,22 +66,17 @@ Page({
       url: app.globalData.uploadUrl,
       filePath: path,
       name: 'file',
-      header: {
-        'Authorization': 'Bearer 888888'
-      },
       formData: { type: type, sessionKey: app.globalData.sessionKey || '' },
       success: (res) => {
-        let msg = '文件已接收并处理。';
+        let msg = 'FILE RECEIVED AND PROCESSED.';
         try {
-          // wx.uploadFile 返回的是字符串，需要 JSON.parse
           const data = JSON.parse(res.data);
           msg = data.reply || data.message || msg;
-        } catch(e) {}
-        
+        } catch (e) {}
         this.addMessage('system', msg);
       },
       fail: (err) => {
-        this.addMessage('system', `错误：上传失败 (${err.errMsg})`);
+        this.addMessage('system', `ERROR: UPLOAD FAILED (${err.errMsg})`);
       },
       complete: () => {
         this.setData({ isTyping: false });
@@ -117,7 +103,7 @@ Page({
 
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const userMsgId = 'u' + Date.now() + Math.floor(Math.random() * 1000);
-    
+
     const newMessages = [...this.data.messages, {
       id: userMsgId,
       time: timestamp,
@@ -132,40 +118,30 @@ Page({
       isTyping: true
     });
 
-    // 这里是调用 OpenClaw 的逻辑 (使用 OpenAI 兼容接口)
-    const requestUrl = app.globalData.apiUrl;
-    const requestData = {
-      model: 'openclaw:main',
-      messages: [{ role: 'user', content: text }],
-      user: app.globalData.sessionKey || 'unknown'
-    };
-    console.log('[发送消息] URL:', requestUrl);
-    console.log('[发送消息] 请求体:', JSON.stringify(requestData));
-
-    const requestTask = wx.request({
-      url: requestUrl,
+    wx.request({
+      url: app.globalData.apiUrl,
       method: 'POST',
       header: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer 888888'
+        'Content-Type': 'application/json'
       },
-      data: requestData,
+      data: {
+        model: 'openclaw:main',
+        messages: [{ role: 'user', content: text }],
+        user: app.globalData.sessionKey || ''
+      },
       success: (res) => {
-        console.log('[发送消息] 响应:', res.statusCode, res.data);
-        let replyText = '命令已执行。';
-        
-        // 解析 OpenAI 格式的返回
-        if (res.data && res.data.choices && res.data.choices[0] && res.data.choices[0].message) {
-          replyText = res.data.choices[0].message.content;
-        } else if (res.data && res.data.error) {
-          replyText = `错误：${res.data.error.message}`;
+        let replyText = 'COMMAND EXECUTED.';
+        if (res.data) {
+          replyText =
+            res.data.reply ||
+            res.data.message ||
+            (typeof res.data === 'string' ? res.data : replyText);
         }
-        
         this.addMessage('system', replyText);
       },
       fail: (err) => {
-        console.error('[发送消息] 请求失败:', err);
-        this.addMessage('system', `错误：请求失败 (${err.errMsg || '未知错误'})`);
+        console.error('Uplink error:', err);
+        this.addMessage('system', `ERROR: UPLINK FAILED (${err.errMsg || 'UNKNOWN_ERROR'})`);
       },
       complete: () => {
         this.setData({ isTyping: false });
@@ -184,4 +160,4 @@ Page({
     if (!url) return;
     wx.openDocument({ filePath: url, showMenu: true });
   }
-})
+});
