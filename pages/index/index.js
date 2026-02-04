@@ -179,17 +179,29 @@ Page({
         user: app.globalData.sessionKey || 'unknown'
       },
       success: (res) => {
+        console.log('[发送消息] 原始响应:', res.data);
         let replyText = '命令已执行。';
+        
+        // 兼容处理：OpenAI 格式
         if (res.data && res.data.choices && res.data.choices[0] && res.data.choices[0].message) {
           replyText = res.data.choices[0].message.content;
+        } 
+        // 兼容处理：OpenClaw 直接回复格式
+        else if (res.data && res.data.data && res.data.data.reply) {
+          replyText = res.data.data.reply;
         }
+        else if (res.data && res.data.reply) {
+          replyText = res.data.reply;
+        }
+        
         this.addMessage('system', replyText);
       },
       fail: (err) => {
-        this.addMessage('system', `ERROR: UPLINK FAILED (${err.errMsg})`);
+        console.error('Uplink error:', err);
+        this.addMessage('system', `错误：上传失败 (${err.errMsg})`);
       },
       complete: () => {
-        this.setData({ isTyping: false });
+        this.setData({ isTyping: false, inputValue: '' });
       }
     });
   },
