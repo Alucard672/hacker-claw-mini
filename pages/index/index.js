@@ -132,12 +132,12 @@ Page({
       isTyping: true
     });
 
-    // 这里是调用 OpenClaw 的逻辑
+    // 这里是调用 OpenClaw 的逻辑 (使用 OpenAI 兼容接口)
     const requestUrl = app.globalData.apiUrl;
     const requestData = {
-      message: text,
-      label: 'main',
-      deliver: true
+      model: 'openclaw:main',
+      messages: [{ role: 'user', content: text }],
+      user: app.globalData.sessionKey || 'unknown'
     };
     console.log('[发送消息] URL:', requestUrl);
     console.log('[发送消息] 请求体:', JSON.stringify(requestData));
@@ -152,16 +152,13 @@ Page({
       data: requestData,
       success: (res) => {
         console.log('[发送消息] 响应:', res.statusCode, res.data);
-        // 增加对不同返回格式的兼容处理
         let replyText = '命令已执行。';
-        if (res.data) {
-          // OpenClaw API 返回格式通常是 { status: "ok", data: { reply: "..." } } 
-          // 或者如果是 streaming 可能不同，但这里是非流式请求
-          if (res.data.data && res.data.data.reply) {
-            replyText = res.data.data.reply;
-          } else {
-            replyText = res.data.reply || res.data.message || (typeof res.data === 'string' ? res.data : replyText);
-          }
+        
+        // 解析 OpenAI 格式的返回
+        if (res.data && res.data.choices && res.data.choices[0] && res.data.choices[0].message) {
+          replyText = res.data.choices[0].message.content;
+        } else if (res.data && res.data.error) {
+          replyText = `错误：${res.data.error.message}`;
         }
         
         this.addMessage('system', replyText);
