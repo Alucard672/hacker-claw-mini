@@ -1,0 +1,17 @@
+{
+  "appid": "wxf7826766d70a5091",
+  "projectname": "hacker-claw-mini",
+  "compileType": "miniprogram",
+  "libVersion": "2.32.0",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "newFeature": true,
+    "autoAudits": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true
+  }
+}
