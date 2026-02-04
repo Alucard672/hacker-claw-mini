@@ -38,12 +38,6 @@
   </scroll-view>
 
   <view class="input-area">
-    <view class="tool-bar">
-      <view class="tool-item" bindtap="chooseImage">图片</view>
-      <view class="tool-item" bindtap="chooseFile">文件</view>
-      <view class="tool-item" bindtouchstart="startVoice" bindtouchend="stopVoice">语音</view>
-      <view class="tool-item logout" bindtap="logout">退出</view>
-    </view>
     <view class="input-box">
       <input 
         class="main-input" 
@@ -55,6 +49,12 @@
         confirm-type="send"
       />
       <view class="send-btn" bindtap="sendMessage">执行</view>
+    </view>
+    <view class="tool-bar">
+      <view class="tool-item" bindtap="chooseImage">图片</view>
+      <view class="tool-item" bindtap="chooseFile">文件</view>
+      <view class="tool-item" bindtouchstart="startVoice" bindtouchend="stopVoice">语音</view>
+      <view class="tool-item logout" bindtap="logout">退出</view>
     </view>
   </view>
 </view>
