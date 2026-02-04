@@ -88,7 +88,7 @@ Page({
 
   addMessage(type, text, extra = {}) {
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const id = (type[0]) + Date.now();
+    const id = type[0] + Date.now() + Math.floor(Math.random() * 1000);
     this.setData({
       messages: [...this.data.messages, { id, time: timestamp, type, text, ...extra }],
       lastMessageId: id
@@ -104,7 +104,7 @@ Page({
     if (!text) return;
 
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const userMsgId = 'u' + Date.now();
+    const userMsgId = 'u' + Date.now() + Math.floor(Math.random() * 1000);
     
     const newMessages = [...this.data.messages, {
       id: userMsgId,
@@ -132,35 +132,17 @@ Page({
         sessionKey: app.globalData.sessionKey || ''
       },
       success: (res) => {
-        const sysMsgId = 's' + Date.now();
         // 增加对不同返回格式的兼容处理
         let replyText = 'COMMAND EXECUTED.';
         if (res.data) {
           replyText = res.data.reply || res.data.message || (typeof res.data === 'string' ? res.data : replyText);
         }
         
-        this.setData({
-          messages: [...this.data.messages, {
-            id: sysMsgId,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            type: 'system',
-            text: replyText
-          }],
-          lastMessageId: sysMsgId
-        });
+        this.addMessage('system', replyText);
       },
       fail: (err) => {
         console.error('Uplink error:', err);
-        const errId = 'e' + Date.now();
-        this.setData({
-          messages: [...this.data.messages, {
-            id: errId,
-            time: timestamp,
-            type: 'system',
-            text: `ERROR: UPLINK FAILED (${err.errMsg || 'UNKNOWN_ERROR'})`
-          }],
-          lastMessageId: errId
-        });
+        this.addMessage('system', `ERROR: UPLINK FAILED (${err.errMsg || 'UNKNOWN_ERROR'})`);
       },
       complete: () => {
         this.setData({ isTyping: false });
