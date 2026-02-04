@@ -31,7 +31,7 @@
     </view>
     
     <view class="typing-indicator" wx:if="{{isTyping}}">
-      <text>ANALYZING INCOMING DATA...</text>
+      <text>正在分析输入数据...</text>
     </view>
     
     <view id="bottom-anchor"></view>
@@ -39,22 +39,22 @@
 
   <view class="input-area">
     <view class="tool-bar">
-      <view class="tool-item" bindtap="chooseImage">IMG</view>
-      <view class="tool-item" bindtap="chooseFile">FILE</view>
-      <view class="tool-item" bindtouchstart="startVoice" bindtouchend="stopVoice">VOICE</view>
-      <view class="tool-item logout" bindtap="logout">EXIT</view>
+      <view class="tool-item" bindtap="chooseImage">图片</view>
+      <view class="tool-item" bindtap="chooseFile">文件</view>
+      <view class="tool-item" bindtouchstart="startVoice" bindtouchend="stopVoice">语音</view>
+      <view class="tool-item logout" bindtap="logout">退出</view>
     </view>
     <view class="input-box">
       <input 
         class="main-input" 
         value="{{inputValue}}" 
-        placeholder="ENTER COMMAND..." 
+        placeholder="输入指令..." 
         placeholder-style="color: #004400"
         bindinput="onInput"
         bindconfirm="sendMessage"
         confirm-type="send"
       />
-      <view class="send-btn" bindtap="sendMessage">EXEC</view>
+      <view class="send-btn" bindtap="sendMessage">执行</view>
     </view>
   </view>
 </view>

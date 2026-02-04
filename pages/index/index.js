@@ -3,7 +3,7 @@ const app = getApp();
 Page({
   data: {
     messages: [
-      { id: 'm0', time: '01:22', type: 'system', text: 'CONNECTION ESTABLISHED. SYSTEM ONLINE.' }
+      { id: 'm0', time: '01:22', type: 'system', text: '连接已建立。系统在线。' }
     ],
     inputValue: '',
     lastMessageId: 'm0',
