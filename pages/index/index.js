@@ -13,10 +13,19 @@ Page({
   onLoad() {
     let sessionKey = wx.getStorageSync('claw_session_key');
     if (!sessionKey) {
-      sessionKey = `wx-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-      wx.setStorageSync('claw_session_key', sessionKey);
+      wx.login({
+        success: (res) => {
+          if (res.code) {
+            // 这里先临时用 code 生成一个 sessionKey，如果是老大的后端，可以直接换 openid
+            sessionKey = `wx-${res.code}`;
+            wx.setStorageSync('claw_session_key', sessionKey);
+            app.globalData.sessionKey = sessionKey;
+          }
+        }
+      });
+    } else {
+      app.globalData.sessionKey = sessionKey;
     }
-    app.globalData.sessionKey = sessionKey;
   },
 
   // 选择并上传图片
