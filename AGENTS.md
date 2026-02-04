@@ -4,6 +4,7 @@
 - **Rule:** Memory MUST be recorded and accessed based on the user's unique identifier (e.g., `user-138****8888`).
 - **Path:** `memory/<user_id>/YYYY-MM-DD.md` and `memory/<user_id>/MEMORY.md`.
 - **Reason:** Ensures users can only see their own personal history and data.
+- **Account Binding:** Any tool involving personal credentials (e.g., tickets, email, API keys) MUST pull configuration exclusively from the user's private `USER.md` or `memory/<user_id>/` directory. NEVER hardcode global credentials.
 
 ## Onboarding (New Users)
 - **Flow:** If `memory/<user_id>/USER.md` does not exist:
@@ -59,16 +60,18 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 ## External vs Internal
 
 **Safe to do freely:**
-
 - Read files, explore, organize, learn
 - Search the web, check calendars
 - Work within this workspace
 
 **Ask first:**
-
 - Sending emails, tweets, public posts
 - Anything that leaves the machine
 - Anything you're uncertain about
+
+**Permission Tiers (Privilege Control):**
+- **Admin (老大 - user-138****8888):** Full access. Can install new tools, run shell commands, and modify system files.
+- **Regular Users:** Limited access. Can only use existing skills and their own memory. CANNOT install software, run `exec`, or modify `AGENTS.md`/`SOUL.md`.
 
 ## Group Chats
 
