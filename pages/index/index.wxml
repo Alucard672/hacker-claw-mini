@@ -1,25 +1,25 @@
 <view class="container">
   <scroll-view class="chat-window" scroll-y="true" scroll-into-view="{{lastMessageId}}">
     <view wx:for="{{messages}}" wx:key="id" id="{{item.id}}" class="message-row {{item.type}}">
-      <text class="prefix">[{{item.time}}] {{item.type == 'user' ? 'USER@ROOT' : 'CLAW@SYSTEM'}}# </text>
+      <text class="prefix">[{{item.time}}] {{item.type == 'user' ? '用户' : 'CLAW@系统'}}# </text>
       <view class="content">
         <text wx:if="{{item.text}}">{{item.text}}</text>
         <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFit" class="msg-image" bindtap="previewImage" data-src="{{item.image}}"></image>
         <view wx:if="{{item.file}}" class="file-box" bindtap="openFile" data-url="{{item.file}}">
-          <text>FILE: {{item.fileName || 'ATTACHMENT'}}</text>
+          <text>文件：{{item.fileName || '附件'}}</text>
         </view>
       </view>
     </view>
     <view wx:if="{{isTyping}}" class="message-row system">
-      <text class="prefix">CLAW@SYSTEM# </text>
+      <text class="prefix">CLAW@系统# </text>
       <text class="cursor">_</text>
     </view>
   </scroll-view>
 
   <view class="action-bar">
-    <view class="action-btn" bindtap="chooseImage">IMG</view>
-    <view class="action-btn" bindtap="chooseFile">FILE</view>
-    <view class="action-btn" bindtouchstart="startVoice" bindtouchend="stopVoice">VOICE</view>
+    <view class="action-btn" bindtap="chooseImage">图片</view>
+    <view class="action-btn" bindtap="chooseFile">文件</view>
+    <view class="action-btn" bindtouchstart="startVoice" bindtouchend="stopVoice">语音</view>
   </view>
 
   <view class="input-area">
@@ -28,7 +28,7 @@
            value="{{inputValue}}" 
            bindinput="onInput" 
            bindconfirm="sendMessage" 
-           placeholder="EXECUTE COMMAND..." 
+           placeholder="输入命令..." 
            placeholder-style="color: #004411;"
            confirm-type="send"
            focus="true"/>

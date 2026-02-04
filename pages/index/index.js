@@ -3,7 +3,7 @@ const app = getApp();
 Page({
   data: {
     messages: [
-      { id: 'm0', time: '01:22', type: 'system', text: 'CONNECTION ESTABLISHED. SYSTEM ONLINE.' }
+      { id: 'm0', time: '01:22', type: 'system', text: '连接已建立，系统在线。' }
     ],
     inputValue: '',
     lastMessageId: 'm0',
@@ -39,7 +39,7 @@ Page({
       type: 'file',
       success: (res) => {
         const file = res.tempFiles[0];
-        this.addMessage('user', `Sending file: ${file.name}`, { file: file.path, fileName: file.name });
+        this.addMessage('user', `正在发送文件：${file.name}`, { file: file.path, fileName: file.name });
         this.uploadFile(file.path, 'file');
       }
     });
@@ -49,13 +49,13 @@ Page({
   startVoice() {
     this.recorder = wx.getRecorderManager();
     this.recorder.start({ format: 'mp3' });
-    wx.showToast({ title: 'RECORDING...', icon: 'none' });
+    wx.showToast({ title: '正在录音...', icon: 'none' });
   },
 
   stopVoice() {
     this.recorder.stop();
     this.recorder.onStop((res) => {
-      this.addMessage('user', 'Sent a voice message.');
+      this.addMessage('user', '发送了一条语音消息。');
       this.uploadFile(res.tempFilePath, 'audio');
     });
   },
@@ -68,7 +68,7 @@ Page({
       name: 'file',
       formData: { type: type, sessionKey: app.globalData.sessionKey || '' },
       success: (res) => {
-        let msg = 'FILE RECEIVED AND PROCESSED.';
+        let msg = '文件已接收并处理。';
         try {
           // wx.uploadFile 返回的是字符串，需要 JSON.parse
           const data = JSON.parse(res.data);
@@ -78,7 +78,7 @@ Page({
         this.addMessage('system', msg);
       },
       fail: (err) => {
-        this.addMessage('system', `ERROR: UPLOAD FAILED (${err.errMsg})`);
+        this.addMessage('system', `错误：上传失败 (${err.errMsg})`);
       },
       complete: () => {
         this.setData({ isTyping: false });
@@ -121,19 +121,25 @@ Page({
     });
 
     // 这里是调用 OpenClaw 的逻辑
+    const requestUrl = app.globalData.apiUrl;
+    const requestData = {
+      message: text,
+      sessionKey: app.globalData.sessionKey || ''
+    };
+    console.log('[发送消息] URL:', requestUrl);
+    console.log('[发送消息] 请求体:', JSON.stringify(requestData));
+
     const requestTask = wx.request({
-      url: app.globalData.apiUrl,
+      url: requestUrl,
       method: 'POST',
       header: {
         'Content-Type': 'application/json'
       },
-      data: {
-        message: text,
-        sessionKey: app.globalData.sessionKey || ''
-      },
+      data: requestData,
       success: (res) => {
+        console.log('[发送消息] 响应:', res.statusCode, res.data);
         // 增加对不同返回格式的兼容处理
-        let replyText = 'COMMAND EXECUTED.';
+        let replyText = '命令已执行。';
         if (res.data) {
           replyText = res.data.reply || res.data.message || (typeof res.data === 'string' ? res.data : replyText);
         }
@@ -141,8 +147,8 @@ Page({
         this.addMessage('system', replyText);
       },
       fail: (err) => {
-        console.error('Uplink error:', err);
-        this.addMessage('system', `ERROR: UPLINK FAILED (${err.errMsg || 'UNKNOWN_ERROR'})`);
+        console.error('[发送消息] 请求失败:', err);
+        this.addMessage('system', `错误：请求失败 (${err.errMsg || '未知错误'})`);
       },
       complete: () => {
         this.setData({ isTyping: false });

@@ -9,10 +9,5 @@
     "navigationBarTitleText": "TERMINAL_CLAW",
     "navigationBarTextStyle": "white"
   },
-  "permission": {
-    "scope.record": {
-      "desc": "用于语音输入并发送到 OpenClaw"
-    }
-  },
   "sitemapLocation": "sitemap.json"
 }
